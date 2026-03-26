@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventracker - Alertas de Inventario</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+        }
+        .sidebar {
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(135deg, #343a40, #495057);
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+        }
+        .sidebar a {
+            color: #ffffff;
+            padding: 12px 15px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+        .sidebar a:hover {
+            background-color: #1abc9c;
+            color: #ffffff;
+        }
+        .sidebar i.material-icons {
+            font-size: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        .sidebar .logo-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-left: 15px;
+            border-bottom: 1px solid #495057;
+            padding-bottom: 20px;
+        }
+        .sidebar .logo-container img {
+            width: 70px;
+            height: 70px;
+            margin-right: 10px;
+        }
+        .sidebar .logo-container h4 {
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 24px;
+            margin: 0;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        .dashboard-header h1 {
+            color: #343a40;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .dashboard-header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+        }
+        .alert-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 5px solid;
+        }
+        .alert-success { border-left-color: #28a745; }
+        .alert-warning { border-left-color: #ffc107; }
+        .alert-danger { border-left-color: #dc3545; }
+        .alert-info { border-left-color: #17a2b8; }
+        .alert-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            vertical-align: middle;
+        }
+        .alert-content h5 {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        .alert-content p {
+            margin: 0;
+            color: #6c757d;
+        }
+        .alert-meta {
+            font-size: 0.9rem;
+            color: #adb5bd;
+            margin-top: 10px;
+        }
+        .stats-summary {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            flex: 1;
+            margin: 0 10px;
+        }
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        .stat-card p {
+            color: #6c757d;
+            margin: 0;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+            .content {
+                margin-left: 0;
+                padding: 20px;
+            }
+            .stats-summary {
+                flex-direction: column;
+            }
+            .stat-card {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="Logo.png" alt="Logo de la juguetería">
+            <h4>Inventracker</h4>
+        </div>
+        <div class="container">
+            <a href="#"><i class="material-icons">dashboard</i>Dashboard</a>
+            <a href="#"><i class="material-icons">people</i>Usuarios</a>
+            <a href="#"><i class="material-icons">inventory</i>Productos</a>
+            <a href="#"><i class="material-icons">business</i>Proveedores</a>
+            <a href="#"><i class="material-icons">receipt_long</i>Movimientos de Inventario</a>
+            <a href="#"><i class="material-icons">assessment</i>Reportes</a>
+            <a href="#"><i class="material-icons">warning</i>Alertas</a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="dashboard-header">
+            <h1>Alertas de Inventario</h1>
+            <p>Visualiza y gestiona las alertas generadas por el sistema</p>
+        </div>
+
+        <div class="stats-summary">
+            <div class="stat-card">
+                <h3>5</h3>
+                <p>Alertas Activas</p>
+            </div>
+            <div class="stat-card">
+                <h3>12</h3>
+                <p>Alertas Esta Semana</p>
+            </div>
+            <div class="stat-card">
+                <h3>3</h3>
+                <p>Alertas Críticas</p>
+            </div>
+        </div>
+
+        <div class="alerts-container">
+            <div class="alert-card alert-success">
+                <div class="d-flex align-items-start">
+                    <i class="material-icons alert-icon">check_circle</i>
+                    <div class="alert-content flex-grow-1">
+                        <h5>Producto Agregado Exitosamente</h5>
+                        <p>El producto "Muñeca Barbie" ha sido agregado al inventario correctamente.</p>
+                        <div class="alert-meta">Hace 2 horas • Usuario: Ana López</div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="alert-card alert-warning">
+                <div class="d-flex align-items-start">
+                    <i class="material-icons alert-icon">warning</i>
+                    <div class="alert-content flex-grow-1">
+                        <h5>Stock Bajo Detectado</h5>
+                        <p>El producto "Pelota de Fútbol" tiene menos de 5 unidades en stock.</p>
+                        <div class="alert-meta">Hace 4 horas • Sistema Automático</div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="alert-card alert-danger">
+                <div class="d-flex align-items-start">
+                    <i class="material-icons alert-icon">error</i>
+                    <div class="alert-content flex-grow-1">
+                        <h5>Error en Sincronización</h5>
+                        <p>No se pudo sincronizar los datos con el servidor. Verifique la conexión.</p>
+                        <div class="alert-meta">Hace 6 horas • Sistema</div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="alert-card alert-info">
+                <div class="d-flex align-items-start">
+                    <i class="material-icons alert-icon">info</i>
+                    <div class="alert-content flex-grow-1">
+                        <h5>Actualización del Sistema</h5>
+                        <p>Se ha actualizado el sistema. Nuevas funciones disponibles en Reportes.</p>
+                        <div class="alert-meta">Hace 1 día • Administrador</div>
+                    </div>
+                    <button type="button" class="btn-close" aria-label="Close"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
