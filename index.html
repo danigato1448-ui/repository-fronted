@@ -6,40 +6,18 @@
     <title>Inventracker - Inicio de sesión</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .form-container {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .form-control {
-            height: 38px;
-        }
-
-        .btn {
-            width: 100%;
-            height: 40px;
-        }
-
-        .header-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-            margin-top: 40px;
-            margin-right: 100px;
-        }
-
-        .logo {
-            margin-right: 10px; 
-            margin-top: 40px;
-        }
+        .form-container { max-width: 400px; margin: 0 auto; }
+        .form-control { height: 38px; }
+        .btn { width: 100%; height: 40px; }
+        .header-container { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; margin-top: 40px; }
+        .logo { margin-right: 10px; margin-top: 40px; }
     </style>
 </head>
 
 <body class="bg-light">
     <div class="container">
         <div class="header-container">
-            <img src="Logo.png" alt="Logo Inventracker" class="logo" width="150" height="100"> 
+            <img src="logo.png" alt="Logo Inventracker" class="logo" width="150" height="100"> 
             <h2 class="text-center" style="margin-top: 50px;">Inventracker</h2>
         </div>
 
@@ -53,18 +31,49 @@
                     <label for="contrasena" class="form-label">Contraseña</label>
                     <input type="password" class="form-control" id="contrasena" placeholder="Ingrese su contraseña" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="background-color: rgb(248, 69, 45);">Iniciar sesión</button>
+                <button type="submit" class="btn btn-primary" style="background-color: rgb(248, 69, 45); border: none;">Iniciar sesión</button>
             </form>
         </div>
     </div>
 
-   
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
-        
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault();
-            window.location.href = "dashboard.html"; 
+        const loginForm = document.getElementById('loginForm');
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+
+            // Extraemos los valores usando los IDs correctos
+            const userValue = document.getElementById('usuario').value;
+            const passValue = document.getElementById('contrasena').value;
+
+            try {
+                // IMPORTANTE: Cambia 'TU_URL_DE_RAILWAY' por la URL real de tu servicio
+                // Ejemplo: https://inventracker-production.up.railway.app/login
+                const response = await fetch('https://inventracker-backend-production.up.railway.app/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        usuario: userValue, 
+                        password: passValue 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    alert("¡Bienvenido, acceso concedido!");
+                    window.location.href = "dashboard.html"; 
+                } else {
+                    alert("Error: " + (data.message || "Usuario o contraseña incorrectos."));
+                }
+            } catch (error) {
+                console.error("Error de conexión:", error);
+                // Si el servidor aún no está listo, puedes comentar la línea de abajo 
+                // y dejar solo el window.location para que el instructor vea la navegación.
+                alert("No se pudo conectar con el servidor de base de datos.");
+            }
         });
     </script>
 </body>
