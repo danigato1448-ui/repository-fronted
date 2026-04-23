@@ -30,7 +30,7 @@
             align-items: center;
             transition: background-color 0.3s;
         }
-        .sidebar a:hover {
+        .sidebar a:hover, .sidebar a.active {
             background-color: #1abc9c;
             color: #ffffff;
         }
@@ -78,6 +78,8 @@
             border-radius: 10px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             margin-bottom: 30px;
+            display: flex;
+            align-items: center;
         }
         .table th, .table td {
             text-align: center;
@@ -88,15 +90,6 @@
             color: white;
             font-weight: 600;
         }
-        .table tbody tr:hover {
-            background-color: #f8f9fa;
-        }
-        .product-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 5px;
-        }
         .stock-badge {
             padding: 4px 8px;
             border-radius: 12px;
@@ -106,16 +99,6 @@
         .stock-high { background-color: #d4edda; color: #155724; }
         .stock-medium { background-color: #fff3cd; color: #856404; }
         .stock-low { background-color: #f8d7da; color: #721c24; }
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-            justify-content: center;
-        }
-        .stats-summary {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 30px;
-        }
         .stat-card {
             background: white;
             padding: 20px;
@@ -125,51 +108,27 @@
             flex: 1;
             margin: 0 10px;
         }
-        .stat-card h3 {
-            font-size: 2rem;
-            margin-bottom: 5px;
-        }
-        .stat-card p {
-            color: #6c757d;
-            margin: 0;
-        }
+        .stat-card h3 { font-size: 2rem; margin-bottom: 5px; }
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            .content {
-                margin-left: 0;
-                padding: 20px;
-            }
-            .stats-summary {
-                flex-direction: column;
-            }
-            .stat-card {
-                margin: 10px 0;
-            }
-            .action-buttons {
-                flex-direction: column;
-            }
+            .sidebar { width: 100%; height: auto; position: relative; }
+            .content { margin-left: 0; }
         }
     </style>
 </head>
 <body>
     <div class="sidebar">
         <div class="logo-container">
-            <img src="Logo.png" alt="Logo de la juguetería">
+            <img src="Logo.png" alt="Logo">
             <h4>Inventracker</h4>
         </div>
-        <div class="container">
-            <a href="#"><i class="material-icons">dashboard</i>Dashboard</a>
-            <a href="#"><i class="material-icons">people</i>Usuarios</a>
-            <a href="#"><i class="material-icons">inventory</i>Productos</a>
-            <a href="#"><i class="material-icons">business</i>Proveedores</a>
-            <a href="#"><i class="material-icons">receipt_long</i>Movimientos de Inventario</a>
-            <a href="#"><i class="material-icons">assessment</i>Reportes</a>
-            <a href="#"><i class="material-icons">warning</i>Alertas</a>
-        </div>
+        <nav id="main-nav">
+            <a href="Dashboard.html"><i class="material-icons">dashboard</i>Dashboard</a>
+            <a href="Gestión-de-usuarios.html"><i class="material-icons">people</i>Usuarios</a>
+            <a href="Gestión de productos.html"><i class="material-icons">inventory</i>Productos</a>
+            <a href="gestión_de_proveedores.html"><i class="material-icons">business</i>Proveedores</a>
+            <a href="gestión-de-movimientos-de-inventario.html"><i class="material-icons">swap_horiz</i>Movimientos</a>
+            <a href="Alertas-de-inventario.html"><i class="material-icons">warning</i>Alertas</a>
+        </nav>
     </div>
 
     <div class="content">
@@ -178,30 +137,24 @@
             <p>Administra el inventario de productos de tu tienda</p>
         </div>
 
-        <div class="stats-summary">
+        <div class="stats-summary d-flex mb-4">
             <div class="stat-card">
-                <h3>156</h3>
+                <h3 id="total-productos">...</h3>
                 <p>Productos Totales</p>
             </div>
             <div class="stat-card">
-                <h3>23</h3>
+                <h3 id="alertas-stock" class="text-danger">...</h3>
                 <p>Stock Bajo</p>
-            </div>
-            <div class="stat-card">
-                <h3>89</h3>
-                <p>Categorías</p>
             </div>
         </div>
 
         <div class="search-container">
             <div class="input-group">
-                <input type="text" class="form-control" id="searchProduct" placeholder="Buscar productos..." required>
-                <button class="btn btn-primary" type="button">
-                    <i class="material-icons">search</i>
-                </button>
+                <input type="text" class="form-control" id="searchProduct" placeholder="Buscar productos...">
+                <button class="btn btn-primary" type="button"><i class="material-icons">search</i></button>
             </div>
-            <button class="btn btn-success ms-3">
-                <i class="material-icons">add</i> Agregar Producto
+            <button class="btn btn-success ms-3 d-flex align-items-center">
+                <i class="material-icons me-1">add</i> Nuevo
             </button>
         </div>
 
@@ -209,134 +162,100 @@
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Producto</th>
-                        <th>Categoría</th>
+                        <th>ID</th>
+                        <th>Nombre del Juguete</th>
+                        <th>Categoria</th>
                         <th>Stock</th>
                         <th>Precio</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="Logo.png" alt="Muñeca Barbie" class="product-image me-3">
-                                <div>
-                                    <strong>Muñeca Barbie</strong>
-                                    <br><small class="text-muted">Ref: BAR-001</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Juguetes</td>
-                        <td><span class="stock-badge stock-high">50 unidades</span></td>
-                        <td>$25.000</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="material-icons">edit</i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm">
-                                <i class="material-icons">delete</i>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="Logo.png" alt="Pistola de agua" class="product-image me-3">
-                                <div>
-                                    <strong>Pistola de Agua</strong>
-                                    <br><small class="text-muted">Ref: PIS-002</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Juguetes</td>
-                        <td><span class="stock-badge stock-medium">15 unidades</span></td>
-                        <td>$12.000</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="material-icons">edit</i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm">
-                                <i class="material-icons">delete</i>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="Logo.png" alt="Muñeco Ken" class="product-image me-3">
-                                <div>
-                                    <strong>Muñeco Ken</strong>
-                                    <br><small class="text-muted">Ref: KEN-003</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Juguetes</td>
-                        <td><span class="stock-badge stock-low">3 unidades</span></td>
-                        <td>$22.000</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="material-icons">edit</i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm">
-                                <i class="material-icons">delete</i>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="Logo.png" alt="Lego" class="product-image me-3">
-                                <div>
-                                    <strong>Lego Creator</strong>
-                                    <br><small class="text-muted">Ref: LEG-004</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Juguetes</td>
-                        <td><span class="stock-badge stock-high">75 unidades</span></td>
-                        <td>$45.000</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="material-icons">edit</i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm">
-                                <i class="material-icons">delete</i>
-                            </button>
-                        </td>
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="Logo.png" alt="Carrito control remoto" class="product-image me-3">
-                                <div>
-                                    <strong>Carrito Control Remoto</strong>
-                                    <br><small class="text-muted">Ref: CAR-005</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>Juguetes</td>
-                        <td><span class="stock-badge stock-medium">8 unidades</span></td>
-                        <td>$35.000</td>
-                        <td class="action-buttons">
-                            <button class="btn btn-outline-primary btn-sm">
-                                <i class="material-icons">edit</i>
-                            </button>
-                            <button class="btn btn-outline-danger btn-sm">
-                                <i class="material-icons">delete</i>
-                            </button>
-                        </td>
-                    </tr>
+                <tbody id="tabla-productos">
+                    <tr><td colspan="5">Cargando inventario...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // 1. URL DE RAILWAY CORREGIDA (Sin la barra al final)
+const API_URL = "https://inventracker-backend-production-24b9.up.railway.app"; 
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Script para marcar pestaña activa
+    const currentFile = decodeURIComponent(window.location.pathname.split("/").pop());
+    const menuLinks = document.querySelectorAll('#main-nav a');
+    menuLinks.forEach(link => {
+        const linkFile = decodeURIComponent(link.getAttribute('href'));
+        if (currentFile === linkFile) link.classList.add("active");
+    });
+
+    // Cargar datos
+    cargarProductos();
+    cargarEstadisticas();
+});
+
+async function cargarProductos() {
+    const tabla = document.getElementById('tabla-productos');
+    try {
+        // CORRECCIÓN: Quitamos la barra inicial para evitar el //
+        const response = await fetch(`${API_URL}/productos`);
+        
+        if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+        
+        const productos = await response.json();
+        console.log(productos[0]);
+        tabla.innerHTML = ""; 
+
+        productos.forEach(prod => {
+            let badgeClass = "stock-high";
+            if (prod.stock_actual <= prod.stock_minimo) badgeClass = "stock-low";
+            else if (prod.stock_actual <= prod.stock_minimo + 5) badgeClass = "stock-medium";
+
+            tabla.innerHTML += `
+                <tr>
+                    <td>#${prod.id_producto}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <div>
+                        <strong>${prod.nombre_producto}</strong>
+                        <br><small class="text-muted">Ref: ${prod.referencia}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${prod.nombre_categoria}</td>
+            <td><span class="stock-badge ${badgeClass}">${prod.stock_actual} unidades</span></td>
+            <td>$${Number(prod.precio_venta).toLocaleString('es-CO')}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-outline-primary btn-sm"><i class="material-icons">edit</i></button>
+                        <button class="btn btn-outline-danger btn-sm"><i class="material-icons">delete</i></button>
+                    </td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        console.error("Error detallado:", error);
+        tabla.innerHTML = `<tr><td colspan="5" class="text-danger">Error: ${error.message}</td></tr>`;
+    }
+}
+
+async function cargarEstadisticas() {
+    try {
+        // CORRECCIÓN: Ruta exacta según tu index.js
+        const response = await fetch(`${API_URL}/api/dashboard-stats`);
+        if (!response.ok) throw new Error("Error en stats");
+        
+        const stats = await response.json();
+        document.getElementById('total-productos').innerText = stats.total_productos || 0;
+        document.getElementById('alertas-stock').innerText = stats.alertas || 0;
+    } catch (e) {
+        console.error("Error cargando stats:", e);
+        document.getElementById('total-productos').innerText = "0";
+        document.getElementById('alertas-stock').innerText = "0";
+    }
+}
+    </script>
 </body>
 </html>
->
