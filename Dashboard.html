@@ -21,16 +21,17 @@
         }
 
         .sidebar {
-            width: 280px;
-            height: 100vh;
-            background: linear-gradient(180deg, var(--verde-logo), var(--verde-oscuro));
-            color: white;
-            position: fixed;
-            padding: 20px;
-            box-shadow: 4px 0 10px rgba(0,0,0,0.2);
-            display: flex;
-            flex-direction: column;
-        }
+    width: 280px; /* Ajusta según el ancho que prefieras */
+    height: 100vh;
+    /* Este es el color azulado/oscuro de tu primera imagen */
+    background: linear-gradient(135deg, #343a40, #495057); 
+    color: white;
+    position: fixed;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 4px 0 10px rgba(0,0,0,0.2);
+}
 
         .sidebar h2 {
             font-size: 1.8rem;
@@ -64,8 +65,8 @@
             margin-left: 280px;
             width: calc(100% - 280px);
             padding: 30px;
-        }
 
+        }
         .card-resumen {
             border: none;
             border-radius: 15px;
@@ -258,20 +259,21 @@
         };
 
         document.addEventListener("DOMContentLoaded", () => {
-    // 1. Obtenemos el nombre del archivo actual de la URL (ej: Dashboard.html)
-    // Usamos decodeURIComponent para manejar los espacios y tildes correctamente
-    const currentFile = decodeURIComponent(window.location.pathname.split("/").pop());
+    // 1. Obtenemos el nombre del archivo actual (ej: dashboard.html)
+    const currentFile = window.location.pathname.split("/").pop().toLowerCase();
 
-    // 2. Buscamos todos los enlaces dentro del nav
-    const menuLinks = document.querySelectorAll('nav a');
+    // 2. Buscamos todos los enlaces del menú
+    const menuLinks = document.querySelectorAll('.sidebar a');
 
     menuLinks.forEach(link => {
-        // Obtenemos el nombre del archivo al que apunta el enlace (href)
-        const linkFile = decodeURIComponent(link.getAttribute('href'));
+        // Obtenemos el nombre del archivo al que apunta el enlace
+        const linkFile = link.getAttribute('href').toLowerCase();
 
-        // 3. Si coinciden, le ponemos la clase 'active'
+        // 3. Comparamos y añadimos la clase active
         if (currentFile === linkFile) {
             link.classList.add("active");
+        } else {
+            link.classList.remove("active");
         }
     });
 });
