@@ -57,13 +57,13 @@
 
                 if (data.success) {
                     // Guardar sesión
-                    localStorage.setItem('isLoggedIn', 'true');
-                    localStorage.setItem('usuario', data.user || usuario);
+                    localStorage.setItem('usuario', data.user);
+                    localStorage.setItem('rol', data.rol); 
 
                     alert(`✅ ¡Bienvenido ${data.user || usuario}!`);
                     
                     // Redirección al dashboard
-                    window.location.href = "Dashboard.html";
+                    window.location.href = "dashboard.html";
                 } 
                 else {
                     alert(`❌ ${data.message || "Usuario o contraseña incorrectos"}`);
