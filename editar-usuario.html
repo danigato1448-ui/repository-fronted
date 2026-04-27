@@ -51,24 +51,31 @@
     const userId = urlParams.get('id');
 
     async function cargarDatos() {
-        if (!userId) return;
-        try {
-            const res = await fetch(`${API_URL}/api/usuarios/${userId}`);
-            if (!res.ok) throw new Error("No se encontró el usuario");
-            
-            const data = await res.json();
-            
-            // CORRECCIÓN: Solo asignamos campos que EXISTEN en el HTML
+    if (!userId) return;
+    try {
+        const res = await fetch(`${API_URL}/api/usuarios/${userId}`);
+        
+        // Si el servidor responde 404 o 500, lanzamos el error antes de intentar leer el JSON
+        if (!res.ok) throw new Error("Servidor no responde correctamente");
+        
+        const data = await res.json();
+        console.log("Datos recibidos:", data); // Mira esto en la consola (F12)
+
+        // Verificamos que 'data' exista antes de asignar
+        if (data) {
             document.getElementById('nombre').value = data.nombre || "";
             document.getElementById('estado').value = data.estado || "Activo";
-            // Usamos el id_rol que viene directo de la DB
-            document.getElementById('id_rol').value = data.id_rol;
-
-        } catch (error) {
-            console.error(error);
-            Swal.fire('Error', 'No se pudieron cargar los datos del usuario', 'error');
+            
+            // Forzamos a que si no viene el ID, use el 2 (Empleado) por defecto para que no falle el select
+            document.getElementById('id_rol').value = data.id_rol || 2; 
         }
+
+    } catch (error) {
+        console.error("Detalle del error:", error);
+        // Solo mostramos la alerta de SweetAlert si realmente falló la conexión
+        Swal.fire('Atención', 'Hubo un problema al conectar con el servidor', 'warning');
     }
+}
 
     document.addEventListener("DOMContentLoaded", cargarDatos);
 
@@ -77,26 +84,34 @@
         const editado = {
             nombre: document.getElementById('nombre').value,
             estado: document.getElementById('estado').value,
-            id_rol: document.getElementById('id_rol').value
+            id_rol: parseInt(document.getElementById('id_rol').value)
         };
 
         try {
-            const res = await fetch(`${API_URL}/api/usuarios/${userId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(editado)
-            });
+        const res = await fetch(`${API_URL}/api/usuarios/${userId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(editado)
+        });
 
-            if (res.ok) {
-                Swal.fire('¡Actualizado!', 'Datos guardados correctamente', 'success')
-                    .then(() => window.location.href = 'gestion-usuarios.html');
-            } else {
-                throw new Error("Error en la actualización");
-            }
-        } catch (error) {
-            Swal.fire('Error', 'No se pudo actualizar el usuario', 'error');
+        if (res.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Actualizado!',
+                text: 'El rol ha sido cambiado con éxito',
+                confirmButtonText: 'OK'
+            }).then(() => {
+                window.location.href = 'gestion-usuarios.html';
+            });
+        } else {
+            const errorData = await res.json();
+            throw new Error(errorData.error || "Error al actualizar");
         }
-    });
+    } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'No se pudo cambiar el rol: ' + error.message, 'error');
+    }
+});
 </script>
 </body>
 </html>
