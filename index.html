@@ -44,9 +44,7 @@
             try {
                 const response = await fetch(`${API_BASE_URL}/api/login`, {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json' 
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
                         usuario: usuario.trim(), 
                         password: password.trim() 
@@ -59,6 +57,7 @@
                     // Guardar sesión
                     localStorage.setItem('usuario', data.user);
                     localStorage.setItem('rol', data.rol); 
+                    localStorage.setItem('estado', data.estado);
 
                     alert(`✅ ¡Bienvenido ${data.user || usuario}!`);
                     
@@ -76,19 +75,10 @@
         }
 
         // ==================== EVENTO DEL FORMULARIO ====================
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const usuario = document.getElementById('usuario').value;
-            const password = document.getElementById('contrasena').value;
-
-            if (!usuario || !password) {
-                alert("Por favor ingresa usuario y contraseña");
-                return;
-            }
-
-            await login(usuario, password);
-        });
-    </script>
-</body>
-</html>
+       document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const u = document.getElementById('usuario').value;
+        const p = document.getElementById('contrasena').value;
+        await login(u, p);
+    });
+</script>

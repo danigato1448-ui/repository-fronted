@@ -120,7 +120,7 @@
                     <tr>
                         <th>Nombre</th>
                         <th>Rol</th>
-                        <th>Usuario</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -171,22 +171,32 @@
         const API_URL = "https://inventracker-backend-production-24b9.up.railway.app"; 
         
         document.addEventListener("DOMContentLoaded", () => {
-            const usuarioLogueado = localStorage.getItem('usuario') || "Usuario";
+
+            // EXTRAER DATOS 
+            const usuarioLogueado = localStorage.getItem('usuario');
             const rolLogueado = localStorage.getItem('rol');
+
+            if (!usuarioLogueado || !rolLogueado) {
+            window.location.href = "index.html";
+            return;
+        }
             
             document.getElementById('nombre-usuario').innerText = usuarioLogueado;
-            
-            // Mostrar botón de agregar solo si es Administrador
-            if (rolLogueado === 'Administrador') {
-                document.getElementById('btn-agregar').style.display = 'block';
-            }
+        
+         // Mostrar botón de agregar solo si es Administrador
 
-            cargarUsuarios(rolLogueado);
+            if (rolLogueado.toLowerCase().trim() === 'administrador') {
+            document.getElementById('btn-agregar').style.display = 'block';
+        }
+            
+            cargarUsuarios();
             marcarMenu();
         });
 
-        async function cargarUsuarios(rolActual) {
+        async function cargarUsuarios() {
     const tabla = document.getElementById('tabla-usuarios-body');
+    const rolActual = localStorage.getItem('rol').toLowerCase().trim();
+    
     try {
         // Llamada a tu API de Railway
         const response = await fetch(`${API_URL}/api/usuarios`);
@@ -200,7 +210,13 @@
 
         // Actualizar las Cards con la información real
         document.getElementById('card-total').innerText = usuarios.length;
-        const activos = usuarios.filter(u => u.rol !== '').length; // Ajusta según tu lógica de estado
+
+        const activos = usuarios.filter(u => {
+    const est = (u.estado || u.Estado || "").toString().trim().toLowerCase();
+    return est === 'activo';
+}).length;
+document.getElementById('card-activos').innerText = activos;
+
         // document.getElementById('card-activos').innerText = activos;
         
         if (!usuarios || usuarios.length === 0) {
@@ -209,10 +225,11 @@
         }
 
         usuarios.forEach(u => {
-            // .trim() quita espacios y .toLowerCase() lo pasa a minúsculas para comparar seguro
-            const rolLogueado = (localStorage.getItem('rol') || "").trim().toLowerCase();
-            const esAdmin = rolLogueado === 'administrador';
-            const accionesHtml = esAdmin ? `
+        // .trim() quita espacios y .toLowerCase() lo pasa a minúsculas para comparar seguro
+        const rolActual = (localStorage.getItem('rol') || "").trim().toLowerCase();
+        const esAdmin = rolActual === 'administrador';
+           
+        const accionesHtml = esAdmin ? `
                 <button class="btn btn-outline-primary btn-sm me-2" onclick="irAEditar(${u.id})">
                     <i class="material-icons" style="font-size: 18px;">edit</i>
                 </button>
@@ -221,12 +238,21 @@
                 </button>
             ` : `<span class="badge bg-secondary">Solo lectura</span>`;
 
+           // 2. Definir el diseño del estado (Badge)
+    // Usamos .toLowerCase() por si en la DB viene como 'activo' o 'Activo' 
+   const valorEstado = u.estado || u.Estado || "Inactivo";
+const estadoActual = valorEstado.toString().trim().toLowerCase();
+
+const estadoHtml = estadoActual === 'activo' 
+    ? '<span class="badge bg-success">ACTIVO</span>' 
+    : '<span class="badge bg-danger">INACTIVO</span>';
+
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td><strong>${u.nombre || 'Sin nombre'}</strong></td>
-                <td><span class="badge ${u.rol === 'Administrador' ? 'bg-dark' : 'bg-info text-dark'}">${u.rol || 'Usuario'}</span></td>
-                <td>${u.usuario || u.email || 'N/A'}</td>
-                <td>${accionesHtml}</td>
+            <td><strong>${u.nombre || 'Sin nombre'}</strong></td>
+            <td><span class="badge ${u.rol === 'Administrador' ? 'bg-dark' : 'bg-info text-dark'}">${u.rol}</span></td>
+            <td>${estadoHtml}</td>
+            <td>${accionesHtml}</td>
             `;
             tabla.appendChild(row);
         });
@@ -240,8 +266,13 @@
 }
 
         function irAEditar(id) {
-            window.location.href = `editar-usuario.html?id=${id}`;
-        }
+    // Esto enviará al usuario a editar-usuario.html?id=5
+    if (id) {
+        window.location.href = `editar-usuario.html?id=${id}`;
+    } else {
+        console.error("ID de usuario no definido");
+    }
+}
 
         async function eliminarUsuario(id, nombre) {
             const result = await Swal.fire({

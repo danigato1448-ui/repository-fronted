@@ -173,23 +173,27 @@
         // ==================== CONFIGURACIÓN ====================
         const API_BASE_URL = "https://inventracker-backend-production-24b9.up.railway.app";
 
-        // ==================== PROTECCIÓN DE SESIÓN ====================
+        // ==================== PROTECCIÓN DE SESIÓN (ACTUALIZADO) ====================
         function verificarSesion() {
-            const isLoggedIn = localStorage.getItem('isLoggedIn');
-            if (!isLoggedIn || isLoggedIn !== 'true') {
+            // Buscamos las llaves que configuramos en el nuevo login
+            const sessionUser = localStorage.getItem('usuario');
+            const sessionRol = localStorage.getItem('rol');
+
+            // Si alguna no existe, significa que no ha pasado por el index.html correctamente
+            if (!sessionUser || !sessionRol) {
                 alert("Debes iniciar sesión para acceder al dashboard.");
-                window.location.href = "login.html";   // Asegúrate que este nombre sea correcto
+                window.location.href = "index.html"; 
                 return false;
             }
             return true;
         }
 
-        // ==================== CERRAR SESIÓN ====================
+        // ==================== CERRAR SESIÓN (ACTUALIZADO) ====================
         function cerrarSesion() {
             if (confirm("¿Estás seguro de que deseas cerrar sesión?")) {
-                localStorage.removeItem('isLoggedIn');
-                localStorage.removeItem('usuario');
-                window.location.href = "login.html";
+                // Limpiamos todo el almacenamiento para mayor seguridad
+                localStorage.clear();
+                window.location.href = "index.html";
             }
         }
 
@@ -242,41 +246,35 @@
 
             } catch (error) {
                 console.error("❌ Error al actualizar dashboard:", error);
-                // Puedes descomentar la siguiente línea cuando estés probando:
-                // alert("Error al cargar los datos. Verifica que el backend esté activo.");
             }
         }
 
         // ==================== INICIO DE LA PÁGINA ====================
         window.onload = () => {
+            // Ejecutamos la protección primero
             if (!verificarSesion()) return;
 
-            // Mostrar nombre de usuario
-            const usuario = localStorage.getItem('usuario') || "Usuario";
+            // Mostrar nombre de usuario desde la sesión activa
+            const usuario = localStorage.getItem('usuario');
             document.getElementById('nombre-usuario').innerText = usuario;
 
             actualizarDashboard();
         };
 
+        // ==================== LÓGICA DEL MENÚ (SIN CAMBIOS) ====================
         document.addEventListener("DOMContentLoaded", () => {
-    // 1. Obtenemos el nombre del archivo actual (ej: dashboard.html)
-    const currentFile = window.location.pathname.split("/").pop().toLowerCase();
+            const currentFile = window.location.pathname.split("/").pop().toLowerCase();
+            const menuLinks = document.querySelectorAll('.sidebar a');
 
-    // 2. Buscamos todos los enlaces del menú
-    const menuLinks = document.querySelectorAll('.sidebar a');
-
-    menuLinks.forEach(link => {
-        // Obtenemos el nombre del archivo al que apunta el enlace
-        const linkFile = link.getAttribute('href').toLowerCase();
-
-        // 3. Comparamos y añadimos la clase active
-        if (currentFile === linkFile) {
-            link.classList.add("active");
-        } else {
-            link.classList.remove("active");
-        }
-    });
-});
-    </script>
+            menuLinks.forEach(link => {
+                const linkFile = link.getAttribute('href').toLowerCase();
+                if (currentFile === linkFile) {
+                    link.classList.add("active");
+                } else {
+                    link.classList.remove("active");
+                }
+            });
+        });
+</script>
 </body>
 </html>
