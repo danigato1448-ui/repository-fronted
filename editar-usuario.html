@@ -57,8 +57,9 @@
                 const data = await res.json();
                 
                 document.getElementById('nombre').value = data.nombre;
+                document.getElementById('usuario').value = data.usuario;
                 document.getElementById('estado').value = data.estado;
-                document.getElementById('id_rol').value = (data.rol === 'Administrador' ? 1 : 2);
+                document.getElementById('id_rol').value = data.rol;
             } catch (error) {
                 Swal.fire('Error', 'No se pudieron cargar los datos del usuario', 'error');
             }
