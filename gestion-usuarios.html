@@ -211,10 +211,9 @@
         // Actualizar las Cards con la información real
         document.getElementById('card-total').innerText = usuarios.length;
 
-        const activos = usuarios.filter(u => {
-    const est = (u.estado || u.Estado || "").toString().trim().toLowerCase();
-    return est === 'activo';
-}).length;
+        const activos = usuarios.filter(u => 
+    u.estado && u.estado.toString().trim().toLowerCase() === 'activo'
+).length;
 document.getElementById('card-activos').innerText = activos;
 
         // document.getElementById('card-activos').innerText = activos;

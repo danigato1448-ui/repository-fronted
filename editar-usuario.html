@@ -46,51 +46,57 @@
     </div>
 
     <script>
-        const API_URL = "https://inventracker-backend-production-24b9.up.railway.app";
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('id');
+    const API_URL = "https://inventracker-backend-production-24b9.up.railway.app";
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('id');
 
-        // 1. Cargar datos actuales del usuario
-        async function cargarDatos() {
-            try {
-                const res = await fetch(`${API_URL}/api/usuarios/${userId}`);
-                const data = await res.json();
-                
-                document.getElementById('nombre').value = data.nombre;
-                document.getElementById('usuario').value = data.usuario;
-                document.getElementById('estado').value = data.estado;
-                document.getElementById('id_rol').value = data.rol;
-            } catch (error) {
-                Swal.fire('Error', 'No se pudieron cargar los datos del usuario', 'error');
-            }
+    async function cargarDatos() {
+        if (!userId) return;
+        try {
+            const res = await fetch(`${API_URL}/api/usuarios/${userId}`);
+            if (!res.ok) throw new Error("No se encontró el usuario");
+            
+            const data = await res.json();
+            
+            // CORRECCIÓN: Solo asignamos campos que EXISTEN en el HTML
+            document.getElementById('nombre').value = data.nombre || "";
+            document.getElementById('estado').value = data.estado || "Activo";
+            // Usamos el id_rol que viene directo de la DB
+            document.getElementById('id_rol').value = data.id_rol;
+
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'No se pudieron cargar los datos del usuario', 'error');
         }
+    }
 
-        if (userId) cargarDatos();
+    document.addEventListener("DOMContentLoaded", cargarDatos);
 
-        // 2. Guardar cambios
-        document.getElementById('formEditarUsuario').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const editado = {
-                nombre: document.getElementById('nombre').value,
-                estado: document.getElementById('estado').value,
-                id_rol: document.getElementById('id_rol').value
-            };
+    document.getElementById('formEditarUsuario').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const editado = {
+            nombre: document.getElementById('nombre').value,
+            estado: document.getElementById('estado').value,
+            id_rol: document.getElementById('id_rol').value
+        };
 
-            try {
-                const res = await fetch(`${API_URL}/api/usuarios/${userId}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(editado)
-                });
+        try {
+            const res = await fetch(`${API_URL}/api/usuarios/${userId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(editado)
+            });
 
-                if (res.ok) {
-                    Swal.fire('¡Actualizado!', 'Datos guardados en tiempo real', 'success')
-                        .then(() => window.location.href = 'gestion-usuarios.html');
-                }
-            } catch (error) {
-                Swal.fire('Error', 'Error al actualizar', 'error');
+            if (res.ok) {
+                Swal.fire('¡Actualizado!', 'Datos guardados correctamente', 'success')
+                    .then(() => window.location.href = 'gestion-usuarios.html');
+            } else {
+                throw new Error("Error en la actualización");
             }
-        });
-    </script>
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo actualizar el usuario', 'error');
+        }
+    });
+</script>
 </body>
 </html>
