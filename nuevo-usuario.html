@@ -56,31 +56,40 @@
         }
 
         document.getElementById('formNuevoUsuario').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const nuevoUsuario = {
-                nombre: document.getElementById('nombre').value,
-                usuario: document.getElementById('usuario').value,
-                password: document.getElementById('password').value,
-                id_rol: document.getElementById('id_rol').value,
-                estado: 'Activo'
-            };
+    e.preventDefault();
+    console.log("Intentando crear usuario..."); // Para saber si el botón al menos responde
 
-            try {
-                const res = await fetch(`${API_URL}/api/usuarios`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(nuevoUsuario)
-                });
+    const nuevoUsuario = {
+        nombre: document.getElementById('nombre').value,
+        usuario: document.getElementById('usuario').value,
+        password: document.getElementById('password').value,
+        id_rol: parseInt(document.getElementById('id_rol').value),
+        estado: 'Activo'
+    };
 
-                if (res.ok) {
-                    Swal.fire('¡Creado!', 'Usuario registrado con éxito', 'success')
-                        .then(() => window.location.href = 'gestion-usuarios.html');
-                }
-            } catch (error) {
-                Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
-            }
+    try {
+        const res = await fetch(`${API_URL}/api/usuarios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(nuevoUsuario)
         });
+
+        const data = await res.json(); // Intentar leer la respuesta del servidor
+        console.log("Respuesta del servidor:", data);
+
+        if (res.ok) {
+            Swal.fire('¡Creado!', 'Usuario registrado con éxito', 'success')
+                .then(() => window.location.href = 'gestion-usuarios.html');
+        } else {
+            // Si el servidor responde con error (ej. 500), mostrar el mensaje real
+            Swal.fire('Error', data.error || 'Error al crear usuario', 'error');
+        }
+    } catch (error) {
+        console.error("Error de conexión:", error);
+        Swal.fire('Error de Red', 'No se pudo conectar con el servidor. Revisa la consola.', 'error');
+    }
+});
+
     </script>
 </body>
 </html>

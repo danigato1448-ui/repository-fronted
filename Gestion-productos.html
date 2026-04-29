@@ -195,34 +195,80 @@
                 <i class="material-icons me-1">add</i> Nuevo
             </button>
         </div>
-
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nombre del Juguete</th>
-                        <th>Categoria</th>
-                        <th>Stock</th>
-                        <th>Precio</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody id="tabla-productos">
-                    <tr><td colspan="5">Cargando inventario...</td></tr>
-                </tbody>
-            </table>
-        </div>
+<div class="table-responsive" style="max-height: 60vh;"> 
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Producto / Ref</th>
+                <th>Categoría</th>
+                <th>Proveedor</th> <th>Stock</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-productos">
+            </tbody>
+    </table>
+</div>
     </div>
+
+    <div class="modal fade" id="modalProducto" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitulo">Nuevo Producto</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formProducto">
+          <input type="hidden" id="prod-id">
+          
+          <div class="mb-2">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" id="prod-nombre" required>
+          </div>
+          
+          <div class="row">
+    <div class="col-md-6 mb-2">
+        <label class="form-label">Categoría</label>
+        <select class="form-select" id="prod-categoria" required>
+            <option value="">Seleccione...</option>
+        </select>
+    </div>
+    <div class="col-md-6 mb-2">
+        <label class="form-label">Proveedor</label>
+        <select class="form-select" id="prod-proveedor" required>
+            <option value="">Seleccione...</option>
+        </select>
+    </div>
+</div>
+
+          <div class="row">
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Stock Actual</label>
+                <input type="number" class="form-control" id="prod-stock" required>
+            </div>
+            <div class="col-md-6 mb-2">
+                <label class="form-label">Precio</label>
+                <input type="number" class="form-control" id="prod-precio" required>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn btn-primary w-100 mt-3">Guardar Producto</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // 1. URL DE RAILWAY CORREGIDA (Sin la barra al final)
 const API_URL = "https://inventracker-backend-production-24b9.up.railway.app"; 
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Script para marcar pestaña activa
+    // 1. Marcar pestaña activa
     const currentFile = decodeURIComponent(window.location.pathname.split("/").pop());
     const menuLinks = document.querySelectorAll('#main-nav a');
     menuLinks.forEach(link => {
@@ -230,70 +276,117 @@ document.addEventListener("DOMContentLoaded", () => {
         if (currentFile === linkFile) link.classList.add("active");
     });
 
-    // Cargar datos
+    // 2. Cargar todos los datos iniciales
     cargarProductos();
     cargarEstadisticas();
+    cargarOpcionesFormulario();
 });
 
+// FUNCIÓN CORREGIDA (Se añadió la llave de cierre que faltaba)
+async function cargarOpcionesFormulario() {
+    try {
+        const resCat = await fetch(`${API_URL}/api/categorias`);
+        const categorias = await resCat.json();
+        const selectCat = document.getElementById('prod-categoria');
+        categorias.forEach(cat => {
+            selectCat.innerHTML += `<option value="${cat.id_categoria}">${cat.nombre_categoria}</option>`;
+        });
+
+        const resProv = await fetch(`${API_URL}/api/proveedores`);
+        const proveedores = await resProv.json();
+        const selectProv = document.getElementById('prod-proveedor');
+        proveedores.forEach(prov => {
+            selectProv.innerHTML += `<option value="${prov.id_proveedor}">${prov.nombre_proveedor}</option>`;
+        });
+    } catch (error) {
+        console.error("Error cargando listas:", error);
+    }
+} // <--- ESTA ES LA LLAVE QUE FALTABA
+
+// FILTRO DE BÚSQUEDA
+document.getElementById('searchProduct').addEventListener('input', (e) => {
+    const termino = e.target.value.toLowerCase();
+    const filas = document.querySelectorAll('#tabla-productos tr');
+    filas.forEach(fila => {
+        const texto = fila.innerText.toLowerCase();
+        fila.style.display = texto.includes(termino) ? "" : "none";
+    });
+});
+
+// VALIDACIÓN DE ROL Y BOTÓN NUEVO
+const botonNuevo = document.querySelector('.btn-success');
+botonNuevo.addEventListener('click', () => {
+    const rol = localStorage.getItem('rol'); 
+    if (rol !== 'Administrador') {
+        alert("Acceso denegado. Solo administradores pueden agregar productos.");
+        return;
+    }
+    document.getElementById('formProducto').reset();
+    document.getElementById('prod-id').value = ""; // Limpiar ID para que sea POST
+    document.getElementById('modalTitulo').innerText = "Nuevo Producto";
+    new bootstrap.Modal(document.getElementById('modalProducto')).show();
+});
+
+// CARGAR PRODUCTOS EN LA TABLA
 async function cargarProductos() {
     const tabla = document.getElementById('tabla-productos');
     try {
-        // CORRECCIÓN: Quitamos la barra inicial para evitar el //
         const response = await fetch(`${API_URL}/productos`);
-        
         if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
         
         const productos = await response.json();
-        console.log(productos[0]);
         tabla.innerHTML = ""; 
 
         productos.forEach(prod => {
-            let badgeClass = "stock-high";
-            if (prod.stock_actual <= prod.stock_minimo) badgeClass = "stock-low";
-            else if (prod.stock_actual <= prod.stock_minimo + 5) badgeClass = "stock-medium";
+            let badgeClass = prod.stock_actual <= prod.stock_minimo ? "stock-low" : "stock-high";
 
             tabla.innerHTML += `
                 <tr>
                     <td>#${prod.id_producto}</td>
-            <td>
-                <div class="d-flex align-items-center">
-                    <div>
-                        <strong>${prod.nombre_producto}</strong>
-                        <br><small class="text-muted">Ref: ${prod.referencia}</small>
-                    </div>
-                </div>
-            </td>
-            <td>${prod.nombre_categoria}</td>
-            <td><span class="stock-badge ${badgeClass}">${prod.stock_actual} unidades</span></td>
-            <td>$${Number(prod.precio_venta).toLocaleString('es-CO')}</td>
+                    <td class="text-start">
+                        <strong>${prod.nombre_producto}</strong><br>
+                        <small class="text-muted">Ref: ${prod.referencia}</small>
+                    </td>
+                    <td>${prod.nombre_categoria}</td>
+                    <td>${prod.nombre_proveedor}</td> 
+                    <td><span class="stock-badge ${badgeClass}">${prod.stock_actual} und</span></td>
+                    <td>$${Number(prod.precio_venta).toLocaleString('es-CO')}</td>
                     <td class="action-buttons">
-                        <button class="btn btn-outline-primary btn-sm"><i class="material-icons">edit</i></button>
-                        <button class="btn btn-outline-danger btn-sm"><i class="material-icons">delete</i></button>
+                        <button class="btn btn-outline-primary btn-sm btn-editar" 
+                            onclick="abrirModalEditar(${prod.id_producto}, '${prod.nombre_producto}', ${prod.stock_actual}, ${prod.precio_venta}, ${prod.id_categoria}, ${prod.id_proveedor})">
+                            <i class="material-icons">edit</i>
+                        </button>
                     </td>
                 </tr>
             `;
         });
     } catch (error) {
         console.error("Error detallado:", error);
-        tabla.innerHTML = `<tr><td colspan="5" class="text-danger">Error: ${error.message}</td></tr>`;
+        tabla.innerHTML = `<tr><td colspan="7" class="text-danger">Error: ${error.message}</td></tr>`;
     }
+}
+
+function abrirModalEditar(id, nombre, stock, precio, cat, prov) {
+    document.getElementById('modalTitulo').innerText = "Editar Producto";
+    document.getElementById('prod-id').value = id;
+    document.getElementById('prod-nombre').value = nombre;
+    document.getElementById('prod-stock').value = stock;
+    document.getElementById('prod-precio').value = precio;
+    document.getElementById('prod-categoria').value = cat;
+    document.getElementById('prod-proveedor').value = prov;
+    new bootstrap.Modal(document.getElementById('modalProducto')).show();
 }
 
 async function cargarEstadisticas() {
     try {
-        // CORRECCIÓN: Ruta exacta según tu index.js
         const response = await fetch(`${API_URL}/api/dashboard-stats`);
-        if (!response.ok) throw new Error("Error en stats");
-        
         const stats = await response.json();
         document.getElementById('total-productos').innerText = stats.total_productos || 0;
         document.getElementById('alertas-stock').innerText = stats.alertas || 0;
     } catch (e) {
         console.error("Error cargando stats:", e);
-        document.getElementById('total-productos').innerText = "0";
-        document.getElementById('alertas-stock').innerText = "0";
     }
 }
-    </script>
+</script>
 </body>
 </html>
